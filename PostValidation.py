@@ -6,13 +6,12 @@ TABLE = input(" TABLE NAME : ").upper()
 
 MDG = 'C:/Users/2095421/Downloads/Migration/MBEW_M1Q_Ext.xlsx'
 ATLAS = 'C:/Users/2095421/Downloads/Migration/MBEW_APB_Ext.xlsx'
+SCOPE = 'C:/Users/2095421/Downloads/Migration/Field_Scope_Data_Migration.xlsx'
+DataValidationPath = 'C:/Users/2095421/Downloads/Migration/' + TABLE + '_DataValidation.xlsx'
 
 df = pd.DataFrame()
-
-DataValidationPath = 'C:/Users/2095421/Downloads/Migration/' + TABLE + '_DataVALIDATION.xlsx'
-
 df.to_excel(DataValidationPath)
-scope_df = pd.read_excel('C:/Users/2095421/Downloads/Migration/Field_Scope_Data_Migration.xlsx', sheet_name=TABLE)
+scope_df = pd.read_excel(SCOPE, sheet_name=TABLE)
 scope_df.to_excel(DataValidationPath, sheet_name='Sheet1', index=False)
 
 print(TABLE + " Data Validation File created at - " + DataValidationPath )
@@ -60,16 +59,21 @@ def fun_cp(system_name):
     excel_app.Quit()
     print("\n")
 
+    
+
 fun_cp(MDG)
 fun_cp(ATLAS)
 
-df1 = pd.read_excel('C:/Users/2095421/Downloads/Migration/MBEW_DataValidation.xlsx', sheet_name='MBEW_M1Q_Ext.xlsx')
-df2 = pd.read_excel('C:/Users/2095421/Downloads/Migration/MBEW_DataValidation.xlsx', sheet_name='MBEW_APB_Ext.xlsx')
+# df1 = pd.read_excel('C:/Users/2095421/Downloads/Migration/MBEW_DataValidation.xlsx', sheet_name='MBEW_M1Q_Ext.xlsx')
+df1 = pd.read_excel(DataValidationPath, sheet_name='MBEW_M1Q_Ext.xlsx')
+# df2 = pd.read_excel('C:/Users/2095421/Downloads/Migration/MBEW_DataValidation.xlsx', sheet_name='MBEW_APB_Ext.xlsx')
+df2 = pd.read_excel(DataValidationPath, sheet_name='MBEW_APB_Ext.xlsx')
 
 df1.set_index('KEY_MBEW_M1Q_Ext.xlsx', inplace=True)
 df2.set_index('KEY_MBEW_APB_Ext.xlsx', inplace=True)
 
-df3 = pd.read_excel('C:/Users/2095421/Downloads/Migration/Field_Scope_Data_Migration.xlsx', sheet_name=TABLE)
+# df3 = pd.read_excel('C:/Users/2095421/Downloads/Migration/Field_Scope_Data_Migration.xlsx', sheet_name=TABLE)
+df3 = pd.read_excel(DataValidationPath, sheet_name="Sheet1")
 df_scope = df3[df3['Comment'] == 'Scope']
 scope_field = df_scope['Technical Name']
 

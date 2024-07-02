@@ -1,17 +1,17 @@
 # import win32com.client
 # from openpyxl import Workbook
-import pandas as pd
+# import pandas as pd
 
-TABLE = 'MBEW'
+# TABLE = 'MBEW'
 
-df = pd.DataFrame()
+# df = pd.DataFrame()
 
-DataValidationPath = 'C:/Users/2095421/Downloads/Migration/' + TABLE + '_DataVALIDATION.xlsx'
+# DataValidationPath = 'C:/Users/2095421/Downloads/Migration/' + TABLE + '_DataVALIDATION.xlsx'
 
-df.to_excel(DataValidationPath)
+# df.to_excel(DataValidationPath)
 
-scope_df = pd.read_excel('C:/Users/2095421/Downloads/Migration/Field_Scope_Data_Migration.xlsx', sheet_name=TABLE)
-scope_df.to_excel(DataValidationPath, sheet_name='Sheet1', index=False)
+# scope_df = pd.read_excel('C:/Users/2095421/Downloads/Migration/Field_Scope_Data_Migration.xlsx', sheet_name=TABLE)
+# scope_df.to_excel(DataValidationPath, sheet_name='Sheet1', index=False)
 
 
 

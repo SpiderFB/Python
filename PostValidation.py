@@ -1,6 +1,7 @@
 import os
 import win32com.client
 import pandas as pd
+import time
 
 TABLE = input(" TABLE NAME : ").upper()
 
@@ -12,6 +13,7 @@ if os.path.isfile(MDG):
     print("The file exists.")
 else:
     print("The file does not exist.")
+
 
 ATLAS = input(" Please give ATLAS "+ TABLE + " file path ").strip('\"')
 if os.path.isfile(ATLAS):
@@ -36,6 +38,9 @@ print("\n")
 
 def fun_cp(system_name, DataValidationPath, TABLE):
     excel_app = win32com.client.Dispatch("Excel.Application")
+
+    # excel_app.DisplayAlerts = False #To stop the Alert in Excel
+
     source_wb = excel_app.Workbooks.Open(system_name)
     source_sheet = source_wb.Sheets('Sheet1')
 
@@ -75,6 +80,9 @@ def fun_cp(system_name, DataValidationPath, TABLE):
     dest_wb.Close()
     source_wb.Close()
     excel_app.Quit()
+
+    time.sleep(5)
+
     print("\n")
 
 
@@ -109,23 +117,19 @@ for col_name in scope_field:
         elif TABLE == 'MARD':
             result_df =  pd.DataFrame(columns=['Key','Value-Matched?','Material','WERKS','LGORT', 'ATLAS', 'MDG'])
             FIELD1 = 'WERKS'
-            FIELD2 = 'LGORT'
-        
+            FIELD2 = 'LGORT'     
         elif TABLE == 'MVKE':
             result_df =  pd.DataFrame(columns=['Key','Value-Matched?','Material','VKORG','VKWEG', 'ATLAS', 'MDG'])
             FIELD1 = 'VKORG'
             FIELD2 = 'VKWEG'
-
         elif TABLE == 'MLGN':
             result_df =  pd.DataFrame(columns=['Key','Value-Matched?','Material','LGNUM', 'ATLAS', 'MDG'])
             FIELD1 = 'LGNUM'
-            FIELD2 = ' '
-        
+            FIELD2 = ' '       
         elif TABLE == 'MLAN':
             result_df =  pd.DataFrame(columns=['Key','Value-Matched?','Material','ALAND', 'ATLAS', 'MDG'])
             FIELD1 = 'ALAND'
-            FIELD2 = ' '   
-        
+            FIELD2 = ' '          
         for index in df2.index:
             if index in df1.index:
                 if df2.loc[index, col_name] == df1.loc[index, col_name] or (pd.isna(df2.loc[index, col_name]) and pd.isna(df1.loc[index, col_name])):

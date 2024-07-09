@@ -62,22 +62,26 @@ def fun_cp(system_name, DataValidationPath, TABLE):
         # if TABLE == 'MVKE' or TABLE == 'MARD':
         if TABLE in ['MVKE', 'MARD']:
             dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value) + str(dest_sheet.Cells(row, 3).Value) + str(dest_sheet.Cells(row, 4).Value)
-        # elif TABLE == 'MARA':
-        #     dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value)
+        elif TABLE == 'MARA':
+            dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value)
         else:
             dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value) + str(dest_sheet.Cells(row, 3).Value)
         row += 1
 
     print('Count of ', os.path.basename(system_name) + ": ", row-1)
-    for row in range(2, scope_sheet.usedRange.Rows.Count+1):
-        if scope_sheet.Cells(row, 2).Value == 'Scope':
-            technical_name = scope_sheet.Cells(row, 1).Value
-            for col in range(1, dest_sheet.UsedRange.Columns.Count+1):
-                if dest_sheet.Cells(1, col).Value == technical_name:
-                    dest_sheet.Cells(1, col).Interior.ColorIndex = 4
-                    break
 
-    print("Scope fields marked with Green Successfully!")
+
+    # for row in range(2, scope_sheet.usedRange.Rows.Count+1):
+    #     if scope_sheet.Cells(row, 2).Value == 'Scope':
+    #         technical_name = scope_sheet.Cells(row, 1).Value
+    #         for col in range(1, dest_sheet.UsedRange.Columns.Count+1):
+    #             if dest_sheet.Cells(1, col).Value == technical_name:
+    #                 dest_sheet.Cells(1, col).Interior.ColorIndex = 4
+    #                 break
+
+    # print("Scope fields marked with Green Successfully!")
+
+
     
     dest_wb.Save()
     dest_wb.Close()
@@ -107,11 +111,19 @@ df_scope = df3[df3['Comment'] == 'Scope']
 scope_field = df_scope['Technical Name']
 
 for col_name in scope_field:
-    print(col_name)
-    if col_name not in ['MATNR', 'BWKEY', 'VKWEG', 'LGORT'] :
+    
+    # if col_name not in ['BWKEY', 'VKWEG'] :
+    if col_name not in df1.columns :
+        print(col_name, "--------------Not Found")
+    else:
+        print(col_name)
         if TABLE == 'MARC':
             result_df = pd.DataFrame(columns=['Key','Value-Matched?','Material','Plant', 'ATLAS', 'MDG'])
             FIELD1 = 'WERKS'
+            FIELD2 = ' '
+        elif TABLE == 'MARA':
+            result_df = pd.DataFrame(columns=['Key','Value-Matched?','Material', 'ATLAS', 'MDG'])
+            FIELD1 = ' '
             FIELD2 = ' '
         elif TABLE == 'MBEW':
             result_df = pd.DataFrame(columns=['Key','Value-Matched?','Material','Plant', 'ATLAS', 'MDG'])
@@ -140,13 +152,17 @@ for col_name in scope_field:
                     pass
                 else:
                     # print(f'Key {index}: No')
-                    if FIELD2 != ' ':
+                    if FIELD1 == ' ':
+                        result_df.loc[len(result_df)] = [index, 'No', df2.loc[index, 'MATNR'], df2.loc[index, col_name], df1.loc[index, col_name]]
+                    elif FIELD2 != ' ':
                         result_df.loc[len(result_df)] = [index, 'No', df2.loc[index, 'MATNR'], df2.loc[index, FIELD1] ,df2.loc[index, FIELD2], df2.loc[index, col_name], df1.loc[index, col_name]]
                     else:
                         result_df.loc[len(result_df)] = [index, 'No', df2.loc[index, 'MATNR'], df2.loc[index, FIELD1] , df2.loc[index, col_name], df1.loc[index, col_name]]
             else:
                 # print(f'Key {index}: Key not found')
-                if FIELD2 != ' ':
+                if FIELD1 == ' ':
+                        result_df.loc[len(result_df)] = [index, 'Key Not Found', df2.loc[index, 'MATNR'], '','']
+                elif FIELD2 != ' ':
                     result_df.loc[len(result_df)] = [index, 'Key Not Found',df2.loc[index, 'MATNR'],df2.loc[index, FIELD1] ,df2.loc[index, FIELD2],'','']
                 else:
                     result_df.loc[len(result_df)] = [index, 'Key Not Found',df2.loc[index, 'MATNR'],df2.loc[index, FIELD1] ,'','']

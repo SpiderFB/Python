@@ -3,7 +3,8 @@ import win32com.client
 import pandas as pd
 import time
 
-TABLE = input(" TABLE NAME : ").upper()
+TABLE = input("TABLE NAME : ").upper()
+print("\n")
 
 # MDG = 'C:/Users/2095421/Downloads/Migration/MBEW_M1Q_Ext.xlsx'
 # ATLAS = 'C:/Users/2095421/Downloads/Migration/MBEW_APB_Ext.xlsx'
@@ -12,29 +13,28 @@ MDG = input(" Please give MDG "+ TABLE + " file path ").strip('\"')
 if os.path.isfile(MDG):
     print("The file exists.")
 else:
-    print("The file does not exist.")
+    print("The file does not exist.........!")
 
 
 ATLAS = input(" Please give ATLAS "+ TABLE + " file path ").strip('\"')
 if os.path.isfile(ATLAS):
     print("The file exists.")
 else:
-    print("The file does not exist.")
+    print("The file does not exist.........!")
 
-
+start_time = time.time()
 
 SCOPE = 'C:/Users/2095421/Downloads/Migration/GRD/Field_Scope_Data_Migration.xlsx'
-DataValidationPath = 'C:/Users/2095421/Downloads/Migration/GRD/' + TABLE + '_DataValidation.xlsx'
+DataValidationPath = 'C:/Users/2095421/Downloads/Migration/' + TABLE + '_DataValidation.xlsx'
 
 df = pd.DataFrame()
 df.to_excel(DataValidationPath)
 scope_df = pd.read_excel(SCOPE, sheet_name=TABLE)
 scope_df.to_excel(DataValidationPath, sheet_name='Sheet1', index=False)
 
+print("\n")
 print(TABLE + " Data Validation File created at - " + DataValidationPath )
 print("\n")
-
-
 
 def fun_cp(system_name, DataValidationPath, TABLE):
     excel_app = win32com.client.Dispatch("Excel.Application")
@@ -50,25 +50,28 @@ def fun_cp(system_name, DataValidationPath, TABLE):
     scope_sheet = dest_wb.Sheets('Sheet1')
     dest_wb.Sheets(1).Name=os.path.basename(system_name)
     dest_sheet = dest_wb.Sheets(os.path.basename(system_name))
-    dest_sheet.Columns(1).Insert()
-    dest_sheet.Cells(1, 1).Value = 'KEY_' + os.path.basename(system_name)
-    dest_sheet.Range("A1").Interior.Color = 65535
-    dest_sheet.Range("A1").Font.Bold = True
-    print("Key creation done Successfully!")
-    
-    # All table consideration
-    row = 2
-    while dest_sheet.Cells(row, 2).Value is not None and dest_sheet.Cells(row, 3).Value is not None:
-        # if TABLE == 'MVKE' or TABLE == 'MARD':
-        if TABLE in ['MVKE', 'MARD']:
-            dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value) + str(dest_sheet.Cells(row, 3).Value) + str(dest_sheet.Cells(row, 4).Value)
-        # elif TABLE == 'MARA':
-        #     dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value)
-        else:
-            dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value) + str(dest_sheet.Cells(row, 3).Value)
-        row += 1
 
-    print('Count of ', os.path.basename(system_name) + ": ", row-1)
+    if TABLE != 'MARA':
+        
+        dest_sheet.Columns(1).Insert()
+        dest_sheet.Cells(1, 1).Value = 'KEY_' + os.path.basename(system_name)
+        dest_sheet.Range("A1").Interior.Color = 65535
+        dest_sheet.Range("A1").Font.Bold = True
+        print("Key Column created!")
+        
+        # All table consideration
+        row = 2
+        while dest_sheet.Cells(row, 2).Value is not None and dest_sheet.Cells(row, 3).Value is not None:
+            # if TABLE == 'MVKE' or TABLE == 'MARD':
+            if TABLE in ['MVKE', 'MARD']:
+                dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value) + str(dest_sheet.Cells(row, 3).Value) + str(dest_sheet.Cells(row, 4).Value)
+            else:
+                dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value) + str(dest_sheet.Cells(row, 3).Value)
+            row += 1
+        print("Key creation done Successfully!")    
+
+        print('Count of ', os.path.basename(system_name) + ": ", row-1)
+
     for row in range(2, scope_sheet.usedRange.Rows.Count+1):
         if scope_sheet.Cells(row, 2).Value == 'Scope':
             technical_name = scope_sheet.Cells(row, 1).Value
@@ -78,7 +81,7 @@ def fun_cp(system_name, DataValidationPath, TABLE):
                     break
 
     print("Scope fields marked with Green Successfully!")
-    
+
     dest_wb.Save()
     dest_wb.Close()
     source_wb.Close()
@@ -89,69 +92,116 @@ def fun_cp(system_name, DataValidationPath, TABLE):
     print("\n")
 
 
-
 fun_cp(MDG, DataValidationPath, TABLE)
 fun_cp(ATLAS, DataValidationPath, TABLE)
+
+
 
 # df1 = pd.read_excel('C:/Users/2095421/Downloads/Migration/MBEW_DataValidation.xlsx', sheet_name='MBEW_M1Q_Ext.xlsx')
 df1 = pd.read_excel(DataValidationPath, sheet_name=os.path.basename(MDG))
 # df2 = pd.read_excel('C:/Users/2095421/Downloads/Migration/MBEW_DataValidation.xlsx', sheet_name='MBEW_APB_Ext.xlsx')
 df2 = pd.read_excel(DataValidationPath, sheet_name=os.path.basename(ATLAS))
 
-df1.set_index('KEY_' + os.path.basename(MDG), inplace=True)
-df2.set_index('KEY_' + os.path.basename(ATLAS), inplace=True)
+if TABLE == 'MARA':
+    df1.set_index('MATNR', inplace=True)
+    df2.set_index('MATNR', inplace=True)
+else:
+    df1.set_index('KEY_' + os.path.basename(MDG), inplace=True)
+    df2.set_index('KEY_' + os.path.basename(ATLAS), inplace=True)
+
+common_indices = df1.index.intersection(df2.index)
 
 # df3 = pd.read_excel('C:/Users/2095421/Downloads/Migration/Field_Scope_Data_Migration.xlsx', sheet_name=TABLE)
 df3 = pd.read_excel(DataValidationPath, sheet_name="Sheet1")
 df_scope = df3[df3['Comment'] == 'Scope']
 scope_field = df_scope['Technical Name']
 
-for col_name in scope_field:
-    print(col_name)
-    if col_name not in ['MATNR', 'BWKEY', 'VKWEG', 'LGORT'] :
-        if TABLE == 'MARC':
-            result_df = pd.DataFrame(columns=['Key','Value-Matched?','Material','Plant', 'ATLAS', 'MDG'])
-            FIELD1 = 'WERKS'
-            FIELD2 = ' '
-        elif TABLE == 'MBEW':
-            result_df = pd.DataFrame(columns=['Key','Value-Matched?','Material','Plant', 'ATLAS', 'MDG'])
-            FIELD1 = 'BWKEY'
-            FIELD2 = ' '
-        elif TABLE == 'MARD':
-            result_df =  pd.DataFrame(columns=['Key','Value-Matched?','Material','WERKS','LGORT', 'ATLAS', 'MDG'])
-            FIELD1 = 'WERKS'
-            FIELD2 = 'LGORT'     
-        elif TABLE == 'MVKE':
-            result_df =  pd.DataFrame(columns=['Key','Value-Matched?','Material','VKORG','VKWEG', 'ATLAS', 'MDG'])
-            FIELD1 = 'VKORG'
-            FIELD2 = 'VKWEG'
-        elif TABLE == 'MLGN':
-            result_df =  pd.DataFrame(columns=['Key','Value-Matched?','Material','LGNUM', 'ATLAS', 'MDG'])
-            FIELD1 = 'LGNUM'
-            FIELD2 = ' '       
-        elif TABLE == 'MLAN':
-            result_df =  pd.DataFrame(columns=['Key','Value-Matched?','Material','ALAND', 'ATLAS', 'MDG'])
-            FIELD1 = 'ALAND'
-            FIELD2 = ' '          
-        for index in df2.index:
-            if index in df1.index:
-                if df2.loc[index, col_name] == df1.loc[index, col_name] or (pd.isna(df2.loc[index, col_name]) and pd.isna(df1.loc[index, col_name])):
-                    # print(f'Key {index}: Yes')
-                    pass
-                else:
-                    # print(f'Key {index}: No')
-                    if FIELD2 != ' ':
-                        result_df.loc[len(result_df)] = [index, 'No', df2.loc[index, 'MATNR'], df2.loc[index, FIELD1] ,df2.loc[index, FIELD2], df2.loc[index, col_name], df1.loc[index, col_name]]
-                    else:
-                        result_df.loc[len(result_df)] = [index, 'No', df2.loc[index, 'MATNR'], df2.loc[index, FIELD1] , df2.loc[index, col_name], df1.loc[index, col_name]]
-            else:
-                # print(f'Key {index}: Key not found')
-                if FIELD2 != ' ':
-                    result_df.loc[len(result_df)] = [index, 'Key Not Found',df2.loc[index, 'MATNR'],df2.loc[index, FIELD1] ,df2.loc[index, FIELD2],'','']
-                else:
-                    result_df.loc[len(result_df)] = [index, 'Key Not Found',df2.loc[index, 'MATNR'],df2.loc[index, FIELD1] ,'','']
+# scope_field = ['/VSO/R_BOT_IND']
 
-        if not result_df.empty:
-            writer = pd.ExcelWriter(DataValidationPath, engine='openpyxl', mode='a')
-            result_df.to_excel(writer, sheet_name=col_name)
-            writer.close()
+mismatched_dataframes = {}
+
+for col_name in scope_field:
+    
+    # if col_name not in ['BWKEY', 'VKWEG'] :
+    if col_name not in df1.columns:
+        print(col_name, "--------------Not Found")
+    else:
+        print(col_name)
+        # Compare the FIELD values of df1 and df2 for the common indices
+        # comparison = df1.loc[common_indices, col_name] == df2.loc[common_indices, col_name]
+        comparison = df1.loc[common_indices, col_name].eq(df2.loc[common_indices, col_name]) | (df1.loc[common_indices, col_name].isna() & df2.loc[common_indices, col_name].isna())
+        # If they don't match, create a new dataframe with the mismatched indices
+        if not comparison.all():
+            mismatched_indices = common_indices[~comparison]
+
+            if TABLE == 'MARA':
+                df_mismatch = pd.DataFrame({
+                'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
+                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                })
+            elif TABLE == 'MARC': 
+                df_mismatch = pd.DataFrame({
+                'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
+                'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
+                'Plant': df2.loc[mismatched_indices, "WERKS"].squeeze(),
+                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                })
+            elif TABLE == 'MBEW': 
+                df_mismatch = pd.DataFrame({
+                'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
+                'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
+                'Plant': df2.loc[mismatched_indices, "BWKEY"].squeeze(),
+                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                })
+            elif TABLE == 'MLGN': 
+                df_mismatch = pd.DataFrame({
+                'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
+                'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
+                'LGNUM': df2.loc[mismatched_indices, "LGNUM"].squeeze(),
+                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                })
+            elif TABLE == 'MLAN': 
+                df_mismatch = pd.DataFrame({
+                'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
+                'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
+                'ALAND': df2.loc[mismatched_indices, "ALAND"].squeeze(),
+                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                })
+            elif TABLE == 'MARD': 
+                df_mismatch = pd.DataFrame({
+                'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
+                'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
+                'LGORT': df2.loc[mismatched_indices, "LGORT"].squeeze(),
+                'Plant': df2.loc[mismatched_indices, "WERKS"].squeeze(),
+                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                })
+            elif TABLE == 'MVKE': 
+                df_mismatch = pd.DataFrame({
+                'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
+                'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
+                'VKORG': df2.loc[mismatched_indices, "VKORG"].squeeze(),
+                'VKWEG': df2.loc[mismatched_indices, "VKWEG"].squeeze(),
+                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                })
+            mismatched_dataframes[col_name] = df_mismatch
+
+
+
+# Save all the mismatched dataframes to new sheets in the excel file
+with pd.ExcelWriter(DataValidationPath, engine='openpyxl', mode='a') as writer:
+    for sheet_name, df_mismatch in mismatched_dataframes.items():
+        df_mismatch.to_excel(writer, sheet_name=sheet_name.replace("/",""))
+
+# Print a success message
+print("All mismatched dataframes have been written to the excel file.")
+
+end_time = time.time()
+execution_time = end_time - start_time
+print(f"The program took {execution_time} seconds to execute.")

@@ -15,20 +15,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # excel_app = win32com.client.Dispatch("Excel.Application")
 # excel_app.Quit()
 
@@ -56,4 +42,38 @@
 # dest_wb.Close()
 # source_wb.Close()
 # excel_app.Quit()
+
+# import time
+
+# # Start the timer
+# start_time = time.time()
+
+# # Your program starts here
+# print("Hello, World!")
+# # Your program ends here
+
+# # End the timer
+# end_time = time.time()
+
+# # Calculate the execution time
+# execution_time = end_time - start_time
+
+# # Print the execution time
+# print(f"The program took {execution_time} seconds to execute.")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

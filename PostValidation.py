@@ -1,6 +1,10 @@
 import os
 import win32com.client
-import pandas as pd
+try:
+    import pandas as pd
+except ImportError:
+    os.system('pip install pandas')
+    import pandas as pd
 import time
 
 TABLE = input("TABLE NAME : ").upper()
@@ -9,23 +13,27 @@ print("\n")
 # MDG = 'C:/Users/2095421/Downloads/Migration/MBEW_M1Q_Ext.xlsx'
 # ATLAS = 'C:/Users/2095421/Downloads/Migration/MBEW_APB_Ext.xlsx'
 
-MDG = input(" Please give MDG "+ TABLE + " file path ").strip('\"')
+MDG = input("Please give MDG "+ TABLE + " file path ").strip('\"')
 if os.path.isfile(MDG):
     print("The file exists.")
 else:
     print("The file does not exist.........!")
 
 
-ATLAS = input(" Please give ATLAS "+ TABLE + " file path ").strip('\"')
+ATLAS = input("Please give ATLAS "+ TABLE + " file path ").strip('\"')
 if os.path.isfile(ATLAS):
     print("The file exists.")
 else:
     print("The file does not exist.........!")
 
-start_time = time.time()
+SCOPE = input("Field Scope File ------> ").strip('\"')
+# SCOPE = 'C:/Users/2095421/Downloads/Migration/GRD/Field_Scope_Data_Migration.xlsx'
 
-SCOPE = 'C:/Users/2095421/Downloads/Migration/GRD/Field_Scope_Data_Migration.xlsx'
-DataValidationPath = 'C:/Users/2095421/Downloads/Migration/' + TABLE + '_DataValidation.xlsx'
+DVP = input("Path to store the Datavalidation file  ------> ").strip('\"')
+DataValidationPath = DVP + '/' + TABLE + '_DataValidation.xlsx'
+
+
+start_time = time.time()
 
 df = pd.DataFrame()
 df.to_excel(DataValidationPath)
@@ -71,7 +79,8 @@ def fun_cp(system_name, DataValidationPath, TABLE):
         print("Key creation done Successfully!")    
 
         print('Count of ', os.path.basename(system_name) + ": ", row-1)
-
+        
+    print("<-----Starting to mark Scope Fields------> ")
     for row in range(2, scope_sheet.usedRange.Rows.Count+1):
         if scope_sheet.Cells(row, 2).Value == 'Scope':
             technical_name = scope_sheet.Cells(row, 1).Value
@@ -128,8 +137,8 @@ for col_name in scope_field:
     else:
         print(col_name)
         # Compare the FIELD values of df1 and df2 for the common indices
-        # comparison = df1.loc[common_indices, col_name] == df2.loc[common_indices, col_name]
         comparison = df1.loc[common_indices, col_name].eq(df2.loc[common_indices, col_name]) | (df1.loc[common_indices, col_name].isna() & df2.loc[common_indices, col_name].isna())
+        
         # If they don't match, create a new dataframe with the mismatched indices
         if not comparison.all():
             mismatched_indices = common_indices[~comparison]
@@ -191,7 +200,6 @@ for col_name in scope_field:
                 'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
                 })
             mismatched_dataframes[col_name] = df_mismatch
-
 
 
 # Save all the mismatched dataframes to new sheets in the excel file

@@ -63,17 +63,24 @@
 
 
 
+# import os
+# import signal
+
+# # Let's say the PID of the process is 1234
+# pid = 5832
+
+# os.kill(pid, signal.SIGTERM)
 
 
 
 
 
 
+import psutil
+import subprocess
 
-
-
-
-
-
-
-
+pid = 36384  # replace with your process id
+subprocess.run(f'taskkill /PID {pid} /F', shell=True)
+p = psutil.Process(pid)
+# p.suspend()  # to suspend the process
+# p.resume()   # to resume the process

@@ -79,7 +79,7 @@ def fun_cp(system_name, DataValidationPath, TABLE):
         print("Key creation done Successfully!")    
 
         print('Count of ', os.path.basename(system_name) + ": ", row-1)
-        
+
     print("<-----Starting to mark Scope Fields------> ")
     for row in range(2, scope_sheet.usedRange.Rows.Count+1):
         if scope_sheet.Cells(row, 2).Value == 'Scope':
@@ -201,6 +201,7 @@ for col_name in scope_field:
                 })
             mismatched_dataframes[col_name] = df_mismatch
 
+print("Validation Done, Saving all mismatch in the Excel file kindly wait..............")
 
 # Save all the mismatched dataframes to new sheets in the excel file
 with pd.ExcelWriter(DataValidationPath, engine='openpyxl', mode='a') as writer:

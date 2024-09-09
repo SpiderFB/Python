@@ -11,6 +11,10 @@ import pandas as pd
 
 TABLE = input(" TABLE NAME : ").upper()
 
+
+    
+
+
 MDG = 'C:/Users/2095421/Downloads/Migration/MBEW_M1Q_Ext.xlsx'
 ATLAS = 'C:/Users/2095421/Downloads/Migration/MBEW_APB_Ext.xlsx'
 

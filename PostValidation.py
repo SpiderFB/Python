@@ -79,7 +79,7 @@ else:
             dest_sheet.Cells(1, 1).Value = 'KEY_' + os.path.basename(system_name)
             dest_sheet.Range("A1").Interior.Color = 65535
             dest_sheet.Range("A1").Font.Bold = True
-            print("Key Column created!")
+             
             
             # All table consideration
             row = 2
@@ -90,7 +90,7 @@ else:
                 else:
                     dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value) + str(dest_sheet.Cells(row, 3).Value)
                 row += 1
-            print("Key creation done Successfully!")    
+                        print("Key creation done Successfully!")    
 
             print('Count of ', os.path.basename(system_name) + ": ", row-1)
 

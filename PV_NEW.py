@@ -6,11 +6,16 @@ except ImportError:
     os.system('pip install pandas')
     import pandas as pd
 import time
+
+
 print("Welcome to My Program ............!")
 TABLE = input("TABLE NAME : ").upper()
 print("\n")
 
-ValidationFileReady = (input("Data validation file ready?   :  ")).upper()
+CLUSTER = input("Cluster Name  :  ")
+
+# ValidationFileReady = (input("Data validation file ready?   :  ")).upper()
+ValidationFileReady  = "N"
 if ValidationFileReady in ["Y", "YES"]:
     DataValidationPath = input("Please enter Data validation file Path  :  ").strip('\"')
     # SCOPE = input("Field Scope File ------> ").strip('\"')
@@ -40,11 +45,15 @@ else:
     else:
         print("The file does not exist.........!")
 
-    SCOPE = input("Field Scope File ------> ").strip('\"')
-    # SCOPE = 'C:/Users/2095421/Downloads/Migration/GRD/Field_Scope_Data_Migration.xlsx'
+    # SCOPE = input("Field Scope File ------> ").strip('\"')
+    SCOPE = 'C:/Users/2095421/Downloads/Migration/Field_Scope_Data_Migration.xlsx'
 
     DVP = input("Path to store the Datavalidation file  ------> ").strip('\"')
-    DataValidationPath = DVP + '/' + TABLE + '_DataValidation.xlsx'
+
+    # MUCCA = "C:\\Users\\2095421\\Downloads\\Migration\\Prakhar\\MUCCA\\PROD"
+    # DVP = MUCCA.strip('\"')
+    
+    DataValidationPath = DVP + '/'+ CLUSTER + '_' + TABLE + '_DataValidation.xlsx'
 
 
     start_time = time.time()
@@ -64,7 +73,8 @@ else:
         # excel_app.DisplayAlerts = False #To stop the Alert in Excel
 
         source_wb = excel_app.Workbooks.Open(system_name)
-        source_sheet = source_wb.Sheets('Sheet1')
+        source_sheet = source_wb.Sheets('Sheet1') #Make "Sheet1 if normal download is done"
+        # source_sheet = source_wb.Sheets('MVKE') #Make "Sheet1" if normal download is done"
 
         dest_wb = excel_app.Workbooks.Open(DataValidationPath)
         source_sheet.Copy(dest_wb.Sheets(1))    
@@ -106,10 +116,6 @@ else:
             # Convert formulas to values
             dest_sheet.Range("A2:A"+str(last_row)).Value = dest_sheet.Range("A2:A"+str(last_row)).Value
             # dest_sheet.Range("A2:A"+str(last_row)).NumberFormat = "@"
-
-
-
-
 
 
 
@@ -187,7 +193,9 @@ for col_name in scope_field:
         print(col_name)
         # Compare the FIELD values of df1 and df2 for the common indices
         comparison = (df2.loc[common_indices, col_name].isna() & df1.loc[common_indices, col_name].isna()) | df2.loc[common_indices, col_name].eq(df1.loc[common_indices, col_name])
-        
+        # comparison = (df2.loc[common_indices, col_name].isna() & df1.loc[common_indices, col_name].isna()) | (df2.loc[common_indices, col_name].astype(str) == df1.loc[common_indices, col_name].astype(str))
+        # comparison = (df2.loc[common_indices, col_name].isna() & df1.loc[common_indices, col_name].isna()) | (df2.loc[common_indices, col_name].str.strip("'") == df1.loc[common_indices, col_name].str.strip("'"))
+
         # print(f"Size of common_indices: {len(common_indices)}")
         # print(f"Size of comparison: {len(comparison)}")
 
@@ -199,40 +207,40 @@ for col_name in scope_field:
             if TABLE == 'MARA':
                 df_mismatch = pd.DataFrame({
                 'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
-                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
-                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                'Value in MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Value in Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
                 })
             elif TABLE == 'MARC': 
                 df_mismatch = pd.DataFrame({
                 'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
                 'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
                 'Plant': df2.loc[mismatched_indices, "WERKS"].squeeze(),
-                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
-                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                'Value in MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Value in Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
                 })
             elif TABLE == 'MBEW': 
                 df_mismatch = pd.DataFrame({
                 'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
                 'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
                 'Plant': df2.loc[mismatched_indices, "BWKEY"].squeeze(),
-                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
-                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                'Value in MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Value in Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
                 })
             elif TABLE == 'MLGN': 
                 df_mismatch = pd.DataFrame({
                 'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
                 'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
                 'LGNUM': df2.loc[mismatched_indices, "LGNUM"].squeeze(),
-                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
-                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                'Value in MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Value in Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
                 })
             elif TABLE == 'MLAN': 
                 df_mismatch = pd.DataFrame({
                 'Matched': pd.Series(['no']*len(mismatched_indices), index=mismatched_indices),
                 'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
                 'ALAND': df2.loc[mismatched_indices, "ALAND"].squeeze(),
-                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
-                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                'Value in MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Value in Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
                 })
             elif TABLE == 'MARD': 
                 df_mismatch = pd.DataFrame({
@@ -240,8 +248,8 @@ for col_name in scope_field:
                 'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
                 'LGORT': df2.loc[mismatched_indices, "LGORT"].squeeze(),
                 'Plant': df2.loc[mismatched_indices, "WERKS"].squeeze(),
-                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
-                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                'Value in MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Value in Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
                 })
             elif TABLE == 'MVKE': 
                 df_mismatch = pd.DataFrame({
@@ -249,8 +257,8 @@ for col_name in scope_field:
                 'Material no': df2.loc[mismatched_indices, "MATNR"].squeeze(),
                 'VKORG': df2.loc[mismatched_indices, "VKORG"].squeeze(),
                 'VTWEG': df2.loc[mismatched_indices, "VTWEG"].squeeze(),
-                'MDG': df1.loc[mismatched_indices, col_name].squeeze(),
-                'Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
+                'Value in MDG': df1.loc[mismatched_indices, col_name].squeeze(),
+                'Value in Atlas': df2.loc[mismatched_indices, col_name].squeeze(),
                 })
             mismatched_dataframes[col_name] = df_mismatch
 
@@ -267,3 +275,6 @@ print("All mismatched dataframes have been written to the excel file.")
 end_time = time.time()
 execution_time = end_time - start_time
 print(f"The program took {execution_time} seconds to execute.")
+from playsound import playsound
+
+

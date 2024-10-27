@@ -1,0 +1,59 @@
+import os
+import win32com.client
+try:
+    import pandas as pd
+except ImportError:
+    os.system('pip install pandas')
+    import pandas as pd
+
+def FileExist(Path):
+    if os.path.isfile(Path):
+        print("The file exists.")
+    else:
+        print("The file does not exist.........!")
+
+def key_generator(Source_File_Path, dest_sheet, TABLE = "MARC" ):
+    dest_sheet.Columns(1).Insert()
+    dest_sheet.Cells(1, 1).Value = 'KEY_' + os.path.basename(Source_File_Path)
+    dest_sheet.Range("A1").Interior.Color = 65535
+    dest_sheet.Range("A1").Font.Bold = True
+    row = 2
+    last_row = dest_sheet.Cells(dest_sheet.Rows.Count, 2).End(-4162).Row
+    if TABLE == "MARC":
+        dest_sheet.Range("A2:A" + str(last_row)).FormulaR1C1 = "=RC[1] & RC[2]"
+    elif TABLE == "MARA":
+        dest_sheet.Range("A2:A" + str(last_row)).FormulaR1C1 = "=RC[1] & RC[2] & RC[3]"
+    dest_sheet.Range("A2:A"+str(last_row)).Value = dest_sheet.Range("A2:A"+str(last_row)).Value
+    print("Key creation done Successfully!")
+
+def Fun_CP(Source_File_Path, Destination_File_Path):
+    Excel_COM_Obj = win32com.client.Dispatch("Excel.Application")
+    Excel_COM_Obj.Visible = False  # Optional: Make Excel visible for debugging
+    Source_WorkBook = Excel_COM_Obj.Workbooks.Open(Source_File_Path)
+    for sheet in Source_WorkBook.Sheets:
+        print(sheet.Name)
+    Source_Sheet = Source_WorkBook.Sheets('Sheet1')
+    Destination_WorkBook = Excel_COM_Obj.Workbooks.Open(Destination_File_Path)
+    Source_Sheet.Copy(Dest_WorkBook.Sheets(1))
+    print(os.path.basename(Source_File_Path), " Sheet copied to the Destination File Successfully...!" )
+    Destination_WorkBook.Sheets(1).Name=os.path.basename(Source_File_Path)
+    Destination_Sheet = Destination_WorkBook.Sheets(os.path.basename(Source_File_Path))
+    # key_generator(Source_File_Path, Destination_Sheet)
+
+    Destination_WorkBook.Close(SaveChanges=True)
+    Source_WorkBook.Close(SaveChanges=False)
+    Excel_COM_Obj.Quit()
+
+ClusterName = input("Please give Cluster Name in CAPS:  ")
+PVFP = input("Give file path where to create Comapre File and save:   ").strip('\"')
+PreValidationFilePath = PVFP + "/" + ClusterName  + "_" + "MARC_MVKE" + "_PreValidation.xlsx"
+
+print('WOrking on MARC & MVKE------------> ')
+# MARC_File_Path = "C:/Users/2095421/Downloads/Migration/CHD/Quality/Scope Identitification/CHD FR25 AEB MARC.XLSX"
+MARC_File_Path = input("Enter MARC File Path path: ").strip('\"')
+FileExist(MARC_File_Path)
+# MVKE_File_Path = "C:/Users/2095421/Downloads/Migration/CHD/Quality/Scope Identitification/CHD 107 99 AEB MVKE.XLSX"
+MVKE_File_Path = input("Enter MVKE File Path path: ").strip('\"')
+FileExist(MVKE_File_Path)
+Fun_CP(MARC_File_Path, PreValidationFilePath, "MARC")
+Fun_CP(MVKE_File_Path, PreValidationFilePath, "MVKE")

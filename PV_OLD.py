@@ -89,8 +89,8 @@ else:
                     dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value) + str(dest_sheet.Cells(row, 3).Value) + str(dest_sheet.Cells(row, 4).Value)
                 else:
                     dest_sheet.Cells(row, 1).Value = str(dest_sheet.Cells(row, 2).Value) + str(dest_sheet.Cells(row, 3).Value)
-                row += 1
-                        print("Key creation done Successfully!")    
+                    row += 1
+                    print("Key creation done Successfully!")    
 
             print('Count of ', os.path.basename(system_name) + ": ", row-1)
 
@@ -162,7 +162,8 @@ for col_name in scope_field:
     else:
         print(col_name)
         # Compare the FIELD values of df1 and df2 for the common indices
-        comparison = (df2.loc[common_indices, col_name].isna() & df1.loc[common_indices, col_name].isna()) | df2.loc[common_indices, col_name].eq(df1.loc[common_indices, col_name])
+        # comparison = (df2.loc[common_indices, col_name].isna() & df1.loc[common_indices, col_name].isna()) | df2.loc[common_indices, col_name].eq(df1.loc[common_indices, col_name])
+        comparison = (df2.loc[common_indices, col_name].isna() & df1.loc[common_indices, col_name].isna()) | (df2.loc[common_indices, col_name].astype(str) == df1.loc[common_indices, col_name].astype(str))
         
         # print(f"Size of common_indices: {len(common_indices)}")
         # print(f"Size of comparison: {len(comparison)}")
